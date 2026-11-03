@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>AquaGuard - Hacrack Romeao</title>
+<style>
+body{background:#0f172a;color:white;font-family:Arial;padding:20px}
+.box{border:2px solid #334155;border-radius:12px;padding:15px;margin:15px 0;background:#1e293b}
+.safe{border-color:#22c55e}
+.danger{border-color:#ef4444;background:#2a0a0a}
+.s{border:1px solid #334155;padding:10px;margin:5px;display:inline-block;width:100px;border-radius:8px;text-align:center}
+button{padding:10px 18px;margin:5px;border-radius:8px;border:none;font-weight:bold;cursor:pointer}
+</style>
+</head>
+<body>
+
+<h2> AquaGuard AI - Water Safety System</h2>
+<p><b>Team: Hacrack Romeao</b> | SIH 2026 | Jharkhand</p>
+
+<div id="main" class="box safe">
+<h3 id="head">SAFE - Water is Drinkable</h3>
+<p id="sub">WQI: 92 | Good for drinking</p>
+</div>
+
+<div class="box">
+<h4>Live Sensor Data - Jharia Node</h4>
+<div class="s">pH<br><b id="ph">7.2</b><br><small>6.5-8.5 ok</small></div>
+<div class="s">Turbidity<br><b id="tur">1.2</b><br><small>&lt;5 ok</small></div>
+<div class="s">TDS<br><b id="tds">210</b><br><small>&lt;500 ok</small></div>
+<div class="s">Iron<br><b id="iron">0.11</b><br><small>&lt;0.3 ok</small></div>
+<div class="s">WQI<br><b id="wqi">92</b><br><small>/100</small></div>
+</div>
+
+<div class="box">
+<button onclick="checkSafe()" style="background:#22c55e">Show SAFE</button>
+<button onclick="checkDanger()" style="background:#ef4444;color:white">Show DANGER</button>
+<button onclick="calcWQI()" style="background:#38bdf8">Calculate WQI</button>
+<p id="sms">SMS: No alert needed</p>
+<p id="log">Log: System started by Hacrack Romeao</p>
+</div>
+
+<div class="box">
+<h4>About Project</h4>
+<p style="font-size:13px;color:#94a3b8">We check water quality in coal mining areas. If pH is low and iron is high, water is contaminated. System locks valve and sends SMS alert.</p>
+</div>
+
+<script>
+function checkSafe(){
+ document.getElementById("ph").innerText="7.2";
+ document.getElementById("tur").innerText="1.2";
+ document.getElementById("tds").innerText="210";
+ document.getElementById("iron").innerText="0.11";
+ document.getElementById("wqi").innerText="92";
+ document.getElementById("main").className="box safe";
+ document.getElementById("head").innerText="SAFE - Water is Drinkable";
+ document.getElementById("sub").innerText="WQI 92 - Good for drinking, IS 10500 Passed";
+ document.getElementById("sms").innerText="SMS: No alert - Water is safe";
+ document.getElementById("log").innerText="Log: Safe water detected";
+}
+
+function checkDanger(){
+ document.getElementById("ph").innerText="3.8";
+ document.getElementById("tur").innerText="32";
+ document.getElementById("tds").innerText="890";
+ document.getElementById("iron").innerText="4.2";
+ document.getElementById("wqi").innerText="18";
+ document.getElementById("main").className="box danger";
+ document.getElementById("head").innerText="DANGER - Do Not Drink Water";
+ document.getElementById("sub").innerText="WQI 18 - Acid Mine Drainage! Valve Locked";
+ document.getElementById("sms").innerText="SMS SENT: Danger! Water is contaminated, do not drink";
+ document.getElementById("log").innerText="Log: DANGER! SMS sent to village head";
+ alert("ALERT! Contaminated water detected - Valve closed + SMS sent");
+}
+
+function calcWQI(){
+ let ph = parseFloat(document.getElementById("ph").innerText);
+ let score = 100 - Math.abs(ph-7)*20;
+ if(score<0) score=10;
+ document.getElementById("wqi").innerText=Math.round(score);
+ alert("WQI = " + Math.round(score) + " | Formula: 100 - |pH-7|*20 | Team Hacrack Romeao");
+}
+
+checkSafe();
+</script>
+
+</body>
+</html>

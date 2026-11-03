@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jharkhand Water Quality Monitor | SWSM Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen font-sans antialiased relative overflow-x-hidden">
+
+    <!-- TOP HEADER -->
+    <header class="border-b border-slate-800 bg-slate-950/80 backdrop-blur sticky top-0 z-30 px-6 py-4 flex flex-col md:flex-row justify-between items-center gap-4">
+        <div class="flex items-center gap-3">
+            <div class="p-2.5 bg-blue-600/20 text-blue-400 rounded-xl border border-blue-500/30">
+                <i class="fa-solid fa-droplet text-xl"></i>
+            </div>
+            <div>
+                <h1 class="text-lg font-semibold tracking-wide text-white">AquaGuard Jharkhand</h1>
+                <p class="text-xs text-slate-400">Jharia Coalfield Monitoring Node #04 (Dhanbad)</p>
+            </div>
+        </div>
+
+        <div class="flex items-center gap-6">
+            <!-- LIVE CLOCK -->
+            <div class="text-right">
+                <div id="liveClock" class="text-base font-mono font-bold text-slate-200">2026-08-23 16:31:18</div>
+                <div class="text-xs text-slate-400 uppercase tracking-wider font-semibold">System Time (IST)</div>
+            </div>
+
+            <!-- NETWORK STATUS -->
+            <div id="netBadge" class="flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                <span id="netText">GSM ONLINE</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN DASHBOARD CONTENT -->
+    <main class="max-w-7xl mx-auto px-6 py-8 space-y-8">
+
+        <!-- STATUS SUMMARY CARD -->
+        <div id="statusCard" class="p-6 rounded-2xl bg-slate-800/60 border border-slate-700/60 backdrop-blur flex flex-col md:flex-row justify-between items-center gap-6 transition-all duration-300">
+            <div class="flex items-center gap-4">
+                <div id="statusIcon" class="w-14 h-14 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 flex items-center justify-center text-2xl shrink-0">
+                    <i class="fa-solid fa-circle-check"></i>
+                </div>
+                <div>
+                    <span class="text-xs font-bold text-slate-400 tracking-wider uppercase">System Water Status</span>
+                    <h2 id="statusTitle" class="text-xl font-bold text-emerald-400">POTABLE & SAFE</h2>
+                    <p id="statusDesc" class="text-sm text-slate-300">Water quality parameters meet IS 10500 drinking standards.</p>
+                </div>
+            </div>
+
+            <button onclick="triggerSimulatedCycle()" class="px-5 py-2.5 bg-blue-600 hover:bg-blue-500 active:scale-95 text-white font-medium text-sm rounded-xl transition-all shadow-lg shadow-blue-600/20 flex items-center gap-2">
+                <i class="fa-solid fa-rotate-right"></i>
+                <span>Simulate Sensor Reading</span>
+            </button>
+        </div>
+
+        <!-- SENSOR METRICS GRID -->
+        <div>
+            <h3 class="text-sm font-bold uppercase tracking-wider text-slate-400 mb-4">Real-Time Telemetry Metrics</h3>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+                
+                <!-- pH -->
+                <div class="p-5 rounded-2xl bg-slate-800/40 border border-slate-700/50 hover:border-slate-600 transition">
+                    <div class="flex justify-between items-center text-slate-400 mb-3 text-sm">
+                        <span>pH Level</span>
+                        <i class="fa-solid fa-flask text-blue-400"></i>
+                    </div>
+                    <div id="val-ph" class="text-3xl font-bold text-white mb-1">7.2</div>
+                    <div class="text-xs text-slate-400">Safe Range: 6.5 - 8.5</div>
+                </div>
+
+                <!-- Turbidity -->
+                <div class="p-5 rounded-2xl bg-slate-800/40 border border-slate-700/50 hover:border-slate-600 transition">
+                    <div class="flex justify-between items-center text-slate-400 mb-3 text-sm">
+                        <span>Turbidity</span>
+                        <i class="fa-solid fa-water text-cyan-400"></i>
+                    </div>
+                    <div id="val-turbidity" class="text-3xl font-bold text-white mb-1">1.2 <span class="text-sm font-normal text-slate-400">NTU</span></div>
+                    <div class="text-xs text-slate-400">Max Limit: 5.0 NTU</div>
+                </div>
+
+                <!-- TDS -->
+                <div class="p-5 rounded-2xl bg-slate-800/40 border border-slate-700/50 hover:border-slate-600 transition">
+                    <div class="flex justify-between items-center text-slate-400 mb-3 text-sm">
+                        <span>TDS</span>
+                        <i class="fa-solid fa-cubes-stacked text-amber-400"></i>
+                    </div>
+                    <div id="val-tds" class="text-3xl font-bold text-white mb-1">210 <span class="text-sm font-normal text-slate-400">ppm</span></div>
+                    <div class="text-xs text-slate-400">Max Limit: 500 ppm</div>
+                </div>
+
+                <!-- Iron (Fe) -->
+                <div class="p-5 rounded-2xl bg-slate-800/40 border border-slate-700/50 hover:border-slate-600 transition">
+                    <div class="flex justify-between items-center text-slate-400 mb-3 text-sm">
+                        <span>Iron (Fe)</span>
+                        <i class="fa-solid fa-shield-halved text-orange-400"></i>
+                    </div>
+                    <div id="val-iron" class="text-3xl font-bold text-white mb-1">0.11 <span class="text-sm font-normal text-slate-400">mg/L</span></div>
+                    <div class="text-xs text-slate-400">Max Limit: 0.3 mg/L</div>
+                </div>
+
+                <!-- Manganese (Mn) -->
+                <div class="p-5 rounded-2xl bg-slate-800/40 border border-slate-700/50 hover:border-slate-600 transition">
+                    <div class="flex justify-between items-center text-slate-400 mb-3 text-sm">
+                        <span>Manganese (Mn)</span>
+                        <i class="fa-solid fa-vial text-purple-400"></i>
+                    </div>
+                    <div id="val-manganese" class="text-3xl font-bold text-white mb-1">0.02 <span class="text-sm font-normal text-slate-400">mg/L</span></div>
+                    <div class="text-xs text-slate-400">Max Limit: 0.1 mg/L</div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- LOWER DETAILS SECTION -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <!-- ACTUATORS PANEL -->
+            <div class="p-6 rounded-2xl bg-slate-800/40 border border-slate-700/50">
+                <h3 class="text-base font-semibold text-white mb-4 flex items-center gap-2">
+                    <i class="fa-solid fa-gears text-blue-400"></i> Automated Purification Actuators
+                </h3>
+                <ul id="actuatorList" class="space-y-3">
+                    <li class="p-3 bg-slate-900/60 rounded-xl border border-slate-700/40 text-sm text-slate-300 flex items-center justify-between">
+                        <span>Primary UV Sterilizer</span>
+                        <span class="px-2 py-0.5 text-xs font-semibold bg-emerald-500/20 text-emerald-400 rounded-md">ACTIVE</span>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- DISPATCH AUDIT TRAIL -->
+            <div class="p-6 rounded-2xl bg-slate-800/40 border border-slate-700/50">
+                <h3 class="text-base font-semibold text-white mb-4 flex items-center gap-2">
+                    <i class="fa-solid fa-paper-plane text-emerald-400"></i> Community Alert Contacts (Jharkhand SWSM)
+                </h3>
+                <div class="space-y-3 text-sm">
+                    <div class="p-3 bg-slate-900/60 rounded-xl border border-slate-700/40 flex items-center justify-between">
+                        <div>
+                            <p class="text-white font-medium">Jal Sahiya (Village Health Specialist)</p>
+                            <p class="text-xs text-slate-400">+91 94311 00000</p>
+                        </div>
+                        <span class="text-xs text-emerald-400 font-semibold">SMS Ready</span>
+                    </div>
+                    <div class="p-3 bg-slate-900/60 rounded-xl border border-slate-700/40 flex items-center justify-between">
+                        <div>
+                            <p class="text-white font-medium">Gram Panchayat Mukhiya / Jal Sahiyya Samiti</p>
+                            <p class="text-xs text-slate-400">+91 98351 00000</p>
+                        </div>
+                        <span class="text-xs text-emerald-400 font-semibold">SMS Ready</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- FULLSCREEN MOTION EMERGENCY WARNING OVERLAY -->
+    <div id="dangerOverlay" class="fixed inset-0 bg-red-950/95 z-50 flex flex-col justify-between p-8 backdrop-blur-md hidden">
+        
+        <!-- TOP TICKER MOTION -->
+        <div class="w-full bg-red-600 text-white font-black text-xl md:text-2xl py-3 px-4 rounded-xl overflow-hidden shadow-2xl uppercase tracking-widest whitespace-nowrap">
+            <div id="marqueeText" class="inline-block animate-marquee">
+                ⚠️ DANGER! CONTAMINATED WATER DETECTED — DO NOT DRINK — ACID MINE DRAINAGE & HEAVY METALS HAZARD DETECTED ⚠️
+            </div>
+        </div>
+
+        <!-- MAIN DANGER CENTER CONTENT -->
+        <div class="max-w-3xl mx-auto text-center space-y-6 my-auto">
+            <div class="w-24 h-24 bg-red-600 text-white rounded-full mx-auto flex items-center justify-center text-5xl shadow-2xl shadow-red-500/50 animate-bounce">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+            </div>
+            
+            <h1 class="text-4xl md:text-6xl font-black text-white tracking-tight uppercase">CRITICAL WATER HAZARD</h1>
+            <p class="text-red-200 text-lg font-medium">Water supply node has been automatically locked down. Do not consume or boil.</p>
+
+            <!-- HAZARD DETAILS -->
+            <div class="p-6 bg-red-900/60 border border-red-500/40 rounded-2xl text-left space-y-3">
+                <div class="flex justify-between items-center text-sm font-mono text-red-200">
+                    <span>DATE & TIME:</span>
+                    <span id="overlayTime" class="font-bold text-white">2026-08-23 16:31:18</span>
+                </div>
+                <div class="flex justify-between items-center text-sm font-mono text-red-200">
+                    <span>LOCATION:</span>
+                    <span class="font-bold text-white">JHARIA COALFIELD BELT (DHANBAD)</span>
+                </div>
+                <div class="pt-2 border-t border-red-700/50">
+                    <span class="text-xs text-red-300 uppercase font-bold block mb-1">Detected Faults:</span>
+                    <div id="overlayFaults" class="text-xl font-bold text-yellow-300">Acidic Mine Runoff (pH 4.1), High Iron (3.4 mg/L)</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- BOTTOM TIMER -->
+        <div class="flex justify-between items-center text-red-200 font-mono text-sm max-w-7xl mx-auto w-full border-t border-red-800/60 pt-4">
+            <div class="flex items-center gap-2">
+                <i class="fa-solid fa-volume-high animate-pulse text-yellow-400"></i>
+                <span>Audio Warning Active</span>
+            </div>
+            <div class="font-bold text-white">
+                HOLDING SCREEN: <span id="overlayTimer" class="text-yellow-400 text-lg">6.0</span>s
+            </div>
+        </div>
+    </div>
+
+    <!-- STYLES FOR MOTION EFFECT -->
+    <style>
+        @keyframes marquee {
+            0% { transform: translateX(100%); }
+            100% { transform: translateX(-100%); }
+        }
+        .animate-marquee {
+            animation: marquee 12s linear infinite;
+        }
+    </style>
+
+    <!-- DASHBOARD LOGIC -->
+    <script>
+        // Update Live Clock
+        function updateClock() {
+            const now = new Date();
+            const timeStr = now.getFullYear() + '-' +
+                String(now.getMonth() + 1).padStart(2, '0') + '-' +
+                String(now.getDate()).padStart(2, '0') + ' ' +
+                String(now.getHours()).padStart(2, '0') + ':' +
+                String(now.getMinutes()).padStart(2, '0') + ':' +
+                String(now.getSeconds()).padStart(2, '0');
+            
+            document.getElementById('liveClock').textContent = timeStr;
+            return timeStr;
+        }
+        setInterval(updateClock, 1000);
+
+        // Sound alert using Web Audio API
+        function playBeepSound() {
+            try {
+                const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(880, audioCtx.currentTime); // A5 note
+                gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.3);
+            } catch (e) {}
+        }
+
+        let isHazardCycle = false;
+
+        function triggerSimulatedCycle() {
+            isHazardCycle = !isHazardCycle;
+            const timeStr = updateClock();
+
+            if (isHazardCycle) {
+                // CONTAMINATED DATA
+                const data = { ph: 4.1, turbidity: 24.0, tds: 850, iron: 3.4, manganese: 0.45 };
+                updateDashboard(data, false);
+                triggerEmergencyOverlay(timeStr, ["Acid Mine Drainage (pH 4.1)", "High Turbidity (24 NTU)", "Iron Contamination (3.4 mg/L)"]);
+            } else {
+                // CLEAN DATA
+                const data = { ph: 7.2, turbidity: 1.2, tds: 210, iron: 0.11, manganese: 0.02 };
+                updateDashboard(data, true);
+            }
+        }
+
+        function updateDashboard(data, isClean) {
+            document.getElementById('val-ph').textContent = data.ph;
+            document.getElementById('val-turbidity').innerHTML = `${data.turbidity} <span class="text-sm font-normal text-slate-400">NTU</span>`;
+            document.getElementById('val-tds').innerHTML = `${data.tds} <span class="text-sm font-normal text-slate-400">ppm</span>`;
+            document.getElementById('val-iron').innerHTML = `${data.iron} <span class="text-sm font-normal text-slate-400">mg/L</span>`;
+            document.getElementById('val-manganese').innerHTML = `${data.manganese} <span class="text-sm font-normal text-slate-400">mg/L</span>`;
+
+            const card = document.getElementById('statusCard');
+            const title = document.getElementById('statusTitle');
+            const desc = document.getElementById('statusDesc');
+            const icon = document.getElementById('statusIcon');
+            const actuatorList = document.getElementById('actuatorList');
+
+            if (isClean) {
+                card.className = "p-6 rounded-2xl bg-slate-800/60 border border-slate-700/60 backdrop-blur flex flex-col md:flex-row justify-between items-center gap-6 transition-all duration-300";
+                title.className = "text-xl font-bold text-emerald-400";
+                title.textContent = "POTABLE & SAFE";
+                desc.textContent = "Water quality parameters meet IS 10500 drinking standards.";
+                icon.className = "w-14 h-14 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 flex items-center justify-center text-2xl shrink-0";
+                icon.innerHTML = `<i class="fa-solid fa-circle-check"></i>`;
+
+                actuatorList.innerHTML = `
+                    <li class="p-3 bg-slate-900/60 rounded-xl border border-slate-700/40 text-sm text-slate-300 flex items-center justify-between">
+                        <span>Primary UV Sterilizer</span>
+                        <span class="px-2 py-0.5 text-xs font-semibold bg-emerald-500/20 text-emerald-400 rounded-md">ACTIVE</span>
+                    </li>
+                `;
+            } else {
+                card.className = "p-6 rounded-2xl bg-red-950/40 border border-red-500/50 backdrop-blur flex flex-col md:flex-row justify-between items-center gap-6 transition-all duration-300";
+                title.className = "text-xl font-bold text-red-400";
+                title.textContent = "CRITICAL CONTAMINATION";
+                desc.textContent = "Severe mineral and acid mine runoff detected! System automated filters engaged.";
+                icon.className = "w-14 h-14 rounded-2xl bg-red-500/10 border border-red-500/30 text-red-400 flex items-center justify-center text-2xl shrink-0";
+                icon.innerHTML = `<i class="fa-solid fa-circle-exclamation"></i>`;
+
+                actuatorList.innerHTML = `
+                    <li class="p-3 bg-slate-900/60 rounded-xl border border-red-500/30 text-sm text-red-300 flex items-center justify-between">
+                        <span>Lime Neutralizer Dosing Pump (pH Correction)</span>
+                        <span class="px-2 py-0.5 text-xs font-semibold bg-red-500/20 text-red-400 rounded-md">ENGAGED</span>
+                    </li>
+                    <li class="p-3 bg-slate-900/60 rounded-xl border border-red-500/30 text-sm text-red-300 flex items-center justify-between">
+                        <span>Multi-Stage Sand & Iron Media Filter</span>
+                        <span class="px-2 py-0.5 text-xs font-semibold bg-red-500/20 text-red-400 rounded-md">ENGAGED</span>
+                    </li>
+                `;
+            }
+        }
+
+        function triggerEmergencyOverlay(timeStr, faults) {
+            const overlay = document.getElementById('dangerOverlay');
+            document.getElementById('overlayTime').textContent = timeStr;
+            document.getElementById('overlayFaults').textContent = faults.join(', ');
+            
+            overlay.classList.remove('hidden');
+
+            let timeLeft = 6.0;
+            const timerElem = document.getElementById('overlayTimer');
+
+            const interval = setInterval(() => {
+                timeLeft -= 0.4;
+                playBeepSound();
+
+                if (timeLeft <= 0) {
+                    clearInterval(interval);
+                    overlay.classList.add('hidden');
+                } else {
+                    timerElem.textContent = timeLeft.toFixed(1);
+                }
+            }, 400);
+        }
+    </script>
+</body>
+</html>

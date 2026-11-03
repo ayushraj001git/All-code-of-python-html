@@ -1,0 +1,1077 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AquaGuard AI | SIH 2026 Prototype</title>
+
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"/>
+<link rel="stylesheet"
+href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<style>
+body{background:#070b14}
+.glow-blue{box-shadow:0 0 35px rgba(59,130,246,.15)}
+.glow-red{box-shadow:0 0 40px rgba(239,68,68,.25)}
+.pulse-ring{animation:pulseRing 1.8s infinite}
+@keyframes pulseRing{
+0%{box-shadow:0 0 0 0 rgba(59,130,246,.6)}
+70%{box-shadow:0 0 0 15px rgba(59,130,246,0)}
+100%{box-shadow:0 0 0 0 rgba(59,130,246,0)}
+}
+.node{transition:.5s}
+.flow-dot{animation:flow 2s linear infinite}
+@keyframes flow{
+0%{transform:translateX(-20px);opacity:0}
+30%{opacity:1}
+100%{transform:translateX(200px);opacity:0}
+}
+.timeline-item{
+position:relative;
+padding-left:24px
+}
+.timeline-item:before{
+content:'';
+position:absolute;
+left:5px;
+top:6px;
+width:10px;
+height:10px;
+border-radius:50%;
+background:#3b82f6
+}
+</style>
+</head>
+
+<body class="text-slate-100 font-sans">
+
+<!-- TOP GOVERNMENT BAR -->
+<div class="bg-[#040812] border-b border-slate-800 px-5 py-2
+flex justify-between text-[11px] text-slate-400">
+
+<div>
+<i class="fa-solid fa-building-columns mr-2 text-blue-400"></i>
+SMART INDIA HACKATHON 2026 • AQUAGUARD AI
+</div>
+
+<div class="hidden md:block">
+AI WATER SAFETY • OFFLINE FIRST • LoRa + GSM
+</div>
+
+</div>
+
+
+<!-- HEADER -->
+<header class="sticky top-0 z-50 bg-[#070b14]/90 backdrop-blur-xl
+border-b border-slate-800 px-5 py-4 flex justify-between items-center">
+
+<div class="flex items-center gap-3">
+
+<div class="w-11 h-11 rounded-xl
+bg-gradient-to-br from-blue-600 to-cyan-400
+flex items-center justify-center text-xl shadow-lg">
+
+<i class="fa-solid fa-droplet"></i>
+
+</div>
+
+<div>
+<h1 class="font-black text-lg">
+AquaGuard <span class="text-cyan-400">AI</span>
+</h1>
+
+<p class="text-[10px] text-slate-400">
+Autonomous Water Safety & Early Warning Platform
+</p>
+</div>
+
+</div>
+
+
+<div class="flex gap-3 items-center">
+
+<div class="hidden md:block text-right">
+<div id="clock" class="font-mono text-xs text-white"></div>
+<div class="text-[9px] text-slate-500">
+IST • EDGE NODE AG-01
+</div>
+</div>
+
+<div class="px-3 py-2 rounded-full border border-emerald-500/30
+bg-emerald-500/10 text-emerald-400 text-xs font-bold">
+
+<span class="inline-block w-2 h-2 rounded-full bg-emerald-400 mr-1 animate-pulse"></span>
+SYSTEM ONLINE
+
+</div>
+
+</div>
+
+</header>
+
+
+<!-- MAIN -->
+<main class="max-w-[1600px] mx-auto p-5 grid grid-cols-12 gap-5">
+
+
+<!-- LEFT -->
+<section class="col-span-12 xl:col-span-8 space-y-5">
+
+
+<!-- AI SAFETY VERDICT -->
+<div id="verdictCard"
+class="rounded-3xl border border-emerald-500/20
+bg-gradient-to-br from-emerald-950/40 to-slate-950
+p-6 relative overflow-hidden glow-blue">
+
+<div class="flex flex-col md:flex-row justify-between gap-5">
+
+<div class="flex gap-4">
+
+<div id="verdictIcon"
+class="w-16 h-16 rounded-2xl
+bg-emerald-500/10 border border-emerald-500/30
+flex items-center justify-center
+text-3xl text-emerald-400">
+
+<i class="fa-solid fa-shield-halved"></i>
+
+</div>
+
+<div>
+
+<div class="text-[10px] tracking-[.2em] uppercase text-slate-400">
+AI Water Safety Verdict
+</div>
+
+<h2 id="verdictTitle"
+class="text-2xl md:text-3xl font-black text-emerald-400 mt-1">
+
+SAFE FOR SUPPLY
+
+</h2>
+
+<p id="verdictDesc" class="text-sm text-slate-300 mt-2">
+
+All parameters within operational limits.
+AI contamination probability:
+<b class="text-emerald-400">12% LOW</b>
+
+</p>
+
+</div>
+
+</div>
+
+
+<div class="flex gap-2 items-center">
+
+<button onclick="runDemo()"
+class="px-5 py-3 rounded-xl bg-white text-black
+font-bold text-sm hover:bg-slate-200 active:scale-95">
+
+<i class="fa-solid fa-flask-vial mr-2"></i>
+Judge Demo
+
+</button>
+
+<button onclick="resetSystem()"
+class="px-4 py-3 rounded-xl bg-slate-800
+border border-slate-700 text-xs hover:bg-slate-700">
+
+Reset
+
+</button>
+
+</div>
+
+</div>
+
+</div>
+
+
+
+<!-- METRICS -->
+<div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+
+<div class="metric bg-slate-900 border border-slate-800 rounded-2xl p-4">
+<div class="text-[10px] text-slate-400">pH</div>
+<div id="ph" class="text-2xl font-black mt-2">7.2</div>
+<div class="text-[10px] text-slate-500">Safe: 6.5–8.5</div>
+</div>
+
+<div class="metric bg-slate-900 border border-slate-800 rounded-2xl p-4">
+<div class="text-[10px] text-slate-400">TURBIDITY</div>
+<div id="turbidity" class="text-2xl font-black mt-2">1.2</div>
+<div class="text-[10px] text-slate-500">NTU</div>
+</div>
+
+<div class="metric bg-slate-900 border border-slate-800 rounded-2xl p-4">
+<div class="text-[10px] text-slate-400">TDS</div>
+<div id="tds" class="text-2xl font-black mt-2">210</div>
+<div class="text-[10px] text-slate-500">ppm</div>
+</div>
+
+<div class="metric bg-slate-900 border border-slate-800 rounded-2xl p-4">
+<div class="text-[10px] text-slate-400">IRON</div>
+<div id="iron" class="text-2xl font-black mt-2">0.11</div>
+<div class="text-[10px] text-slate-500">mg/L</div>
+</div>
+
+<div class="metric bg-slate-900 border border-slate-800 rounded-2xl p-4">
+<div class="text-[10px] text-slate-400">WQI</div>
+<div id="wqi" class="text-2xl font-black text-cyan-400 mt-2">92</div>
+<div class="text-[10px] text-slate-500">Excellent</div>
+</div>
+
+<div class="metric bg-slate-900 border border-slate-800 rounded-2xl p-4">
+<div class="text-[10px] text-slate-400">AI RISK</div>
+<div id="risk" class="text-2xl font-black text-emerald-400 mt-2">12%</div>
+<div class="text-[10px] text-slate-500">Prediction</div>
+</div>
+
+</div>
+
+
+
+<!-- DIGITAL TWIN -->
+<div class="bg-slate-900 border border-slate-800 rounded-3xl p-5">
+
+<div class="flex justify-between items-center mb-5">
+
+<h3 class="text-xs font-bold tracking-widest text-slate-400 uppercase">
+
+<i class="fa-solid fa-diagram-project text-cyan-400 mr-2"></i>
+Live Digital Twin
+
+</h3>
+
+<span id="flowStatus"
+class="text-[10px] text-emerald-400">
+
+NORMAL FLOW
+
+</span>
+
+</div>
+
+
+<div class="grid grid-cols-1 md:grid-cols-5 gap-3 items-center text-center">
+
+<div id="sourceNode"
+class="node bg-slate-950 border border-blue-500/30 rounded-2xl p-5">
+
+<i class="fa-solid fa-mountain-sun text-blue-400 text-xl"></i>
+
+<div class="font-bold text-sm mt-2">
+Water Source
+</div>
+
+<div class="text-[10px] text-slate-500">
+Groundwater / Mine Belt
+</div>
+
+</div>
+
+
+<div class="text-slate-600 text-2xl">
+<i class="fa-solid fa-arrow-right"></i>
+</div>
+
+
+<div id="sensorNode"
+class="node bg-slate-950 border border-cyan-500/30 rounded-2xl p-5">
+
+<i class="fa-solid fa-microchip text-cyan-400 text-xl"></i>
+
+<div class="font-bold text-sm mt-2">
+IoT Sensor Node
+</div>
+
+<div class="text-[10px] text-slate-500">
+ESP32 + Sensors
+</div>
+
+</div>
+
+
+<div class="text-slate-600 text-2xl">
+<i class="fa-solid fa-arrow-right"></i>
+</div>
+
+
+<div id="treatmentNode"
+class="node bg-slate-950 border border-emerald-500/30 rounded-2xl p-5">
+
+<i class="fa-solid fa-filter-circle-dollar text-emerald-400 text-xl"></i>
+
+<div class="font-bold text-sm mt-2">
+Treatment
+</div>
+
+<div class="text-[10px] text-slate-500">
+UV + Filter + Valve
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+
+
+<!-- CHART + MAP -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+
+<div class="bg-slate-900 border border-slate-800 rounded-3xl p-5">
+
+<h3 class="text-xs uppercase tracking-widest font-bold text-slate-400 mb-4">
+
+<i class="fa-solid fa-chart-line text-blue-400 mr-2"></i>
+Predictive Water Quality
+
+</h3>
+
+<canvas id="chart"></canvas>
+
+</div>
+
+
+<div class="bg-slate-900 border border-slate-800 rounded-3xl p-2">
+
+<div id="map" class="h-[310px] rounded-2xl"></div>
+
+</div>
+
+</div>
+
+
+</section>
+
+
+
+<!-- RIGHT SIDE -->
+<aside class="col-span-12 xl:col-span-4 space-y-5">
+
+
+<!-- EXPLAINABLE AI -->
+<div class="bg-slate-900 border border-slate-800 rounded-3xl p-5">
+
+<h3 class="text-xs uppercase tracking-widest font-bold text-purple-400 mb-4">
+
+<i class="fa-solid fa-brain mr-2"></i>
+Explainable AI Engine
+
+</h3>
+
+<div id="aiExplain" class="space-y-3">
+
+<div class="p-3 rounded-xl bg-emerald-500/5 border border-emerald-500/20">
+
+<div class="flex justify-between text-xs">
+<span>pH Stability</span>
+<b class="text-emerald-400">NORMAL</b>
+</div>
+
+<div class="text-[10px] text-slate-500 mt-1">
+No abnormal acidic trend detected.
+</div>
+
+</div>
+
+
+<div class="p-3 rounded-xl bg-slate-950 border border-slate-800">
+
+<div class="flex justify-between text-xs">
+<span>Contamination Pattern</span>
+<b class="text-cyan-400">LOW MATCH</b>
+</div>
+
+<div class="text-[10px] text-slate-500 mt-1">
+Current data does not match historical contamination events.
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+
+
+<!-- SENSOR HEALTH -->
+<div class="bg-slate-900 border border-slate-800 rounded-3xl p-5">
+
+<h3 class="text-xs uppercase tracking-widest font-bold text-amber-400 mb-4">
+
+<i class="fa-solid fa-stethoscope mr-2"></i>
+Sensor Health Monitor
+
+</h3>
+
+<div id="sensorHealth" class="space-y-2"></div>
+
+</div>
+
+
+
+<!-- AUTONOMOUS RESPONSE -->
+<div class="bg-slate-900 border border-slate-800 rounded-3xl p-5">
+
+<h3 class="text-xs uppercase tracking-widest font-bold text-blue-400 mb-4">
+
+<i class="fa-solid fa-robot mr-2"></i>
+Autonomous Response
+
+</h3>
+
+<div id="responseEngine" class="space-y-2"></div>
+
+</div>
+
+
+
+<!-- INCIDENT TIMELINE -->
+<div class="bg-slate-900 border border-slate-800 rounded-3xl p-5">
+
+<h3 class="text-xs uppercase tracking-widest font-bold text-slate-400 mb-4">
+
+<i class="fa-solid fa-clock-rotate-left mr-2"></i>
+Live Incident Timeline
+
+</h3>
+
+<div id="timeline"
+class="space-y-4 text-xs text-slate-400">
+
+</div>
+
+</div>
+
+
+
+<!-- NETWORK -->
+<div class="bg-slate-900 border border-slate-800 rounded-3xl p-5">
+
+<div class="flex justify-between">
+
+<div>
+<div class="text-xs font-bold">
+Connectivity Resilience
+</div>
+
+<div class="text-[10px] text-slate-500 mt-1">
+Offline-first architecture
+</div>
+</div>
+
+<div class="text-right text-[10px]">
+
+<div class="text-emerald-400">
+● LoRa ACTIVE
+</div>
+
+<div class="text-blue-400 mt-1">
+● GSM READY
+</div>
+
+<div class="text-slate-400 mt-1">
+● Cloud SYNCED
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</aside>
+
+</main>
+
+
+
+<!-- EMERGENCY MODAL -->
+<div id="emergency"
+class="hidden fixed inset-0 z-[100]
+bg-red-950/95 backdrop-blur-xl
+flex items-center justify-center p-6">
+
+<div class="max-w-3xl text-center">
+
+<div class="text-6xl text-red-400 animate-bounce">
+
+<i class="fa-solid fa-triangle-exclamation"></i>
+
+</div>
+
+<h1 class="text-4xl md:text-6xl font-black text-white mt-6">
+
+CRITICAL CONTAMINATION
+
+</h1>
+
+<p class="text-red-200 mt-4">
+
+AI detected a high probability of Acid Mine Drainage.
+Autonomous safety protocol activated.
+
+</p>
+
+
+<div class="grid grid-cols-1 md:grid-cols-3 gap-3 mt-8 text-left">
+
+<div class="p-4 bg-black/40 rounded-2xl border border-red-500/30">
+
+<div class="text-[10px] text-red-300">
+DETECTED
+</div>
+
+<div class="font-bold">
+pH 3.8
+</div>
+
+</div>
+
+<div class="p-4 bg-black/40 rounded-2xl border border-red-500/30">
+
+<div class="text-[10px] text-red-300">
+IRON
+</div>
+
+<div class="font-bold">
+4.2 mg/L
+</div>
+
+</div>
+
+<div class="p-4 bg-black/40 rounded-2xl border border-red-500/30">
+
+<div class="text-[10px] text-red-300">
+AI RISK
+</div>
+
+<div class="font-bold">
+94%
+</div>
+
+</div>
+
+</div>
+
+
+<button onclick="closeEmergency()"
+class="mt-8 px-6 py-3 bg-white text-black
+font-bold rounded-xl">
+
+Continue Demo
+
+</button>
+
+</div>
+
+</div>
+
+
+
+<script>
+
+/* CLOCK */
+
+setInterval(()=>{
+
+document.getElementById("clock").textContent =
+new Date().toLocaleString("en-IN",{hour12:false});
+
+},1000);
+
+
+
+/* MAP */
+
+const map=L.map("map",{
+zoomControl:false,
+attributionControl:false
+}).setView([23.79,86.42],11);
+
+
+L.tileLayer(
+"https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
+).addTo(map);
+
+
+const locations=[
+
+{
+name:"AG-01 Primary Node",
+coord:[23.79,86.43],
+color:"#10b981"
+},
+
+{
+name:"Mining Zone",
+coord:[23.74,86.42],
+color:"#ef4444"
+},
+
+{
+name:"Village Supply",
+coord:[23.81,86.35],
+color:"#10b981"
+},
+
+{
+name:"Predicted Risk Zone",
+coord:[23.70,86.48],
+color:"#a855f7"
+}
+
+];
+
+
+locations.forEach(x=>{
+
+L.circleMarker(x.coord,{
+radius:9,
+color:x.color,
+fillColor:x.color,
+fillOpacity:.7
+})
+.addTo(map)
+.bindPopup(x.name);
+
+});
+
+
+
+/* CHART */
+
+const ctx=document.getElementById("chart");
+
+
+const chart=new Chart(ctx,{
+
+type:"line",
+
+data:{
+
+labels:[
+"-24h",
+"-18h",
+"-12h",
+"-6h",
+"NOW",
+"+6h AI"
+],
+
+datasets:[
+
+{
+label:"pH",
+
+data:[
+7.1,
+7.0,
+6.9,
+7.1,
+7.2,
+7.0
+],
+
+borderColor:"#38bdf8",
+tension:.4
+
+},
+
+{
+label:"Iron",
+
+data:[
+.10,
+.12,
+.15,
+.12,
+.11,
+.14
+],
+
+borderColor:"#f97316",
+tension:.4
+
+}
+
+]
+
+},
+
+options:{
+
+plugins:{
+legend:{
+labels:{
+color:"#94a3b8"
+}
+}
+},
+
+scales:{
+
+x:{
+ticks:{color:"#64748b"},
+grid:{color:"#1e293b"}
+},
+
+y:{
+ticks:{color:"#64748b"},
+grid:{color:"#1e293b"}
+}
+
+}
+
+}
+
+});
+
+
+
+/* SENSOR HEALTH */
+
+function renderSensorHealth(){
+
+const sensors=[
+["pH Sensor","98%","emerald"],
+["Turbidity","96%","emerald"],
+["TDS Sensor","99%","emerald"],
+["Iron Sensor","94%","amber"],
+["Flow Meter","97%","emerald"]
+];
+
+
+document.getElementById("sensorHealth").innerHTML=
+
+sensors.map(s=>`
+
+<div class="flex justify-between
+p-2.5 rounded-xl bg-slate-950 border border-slate-800 text-xs">
+
+<span>${s[0]}</span>
+
+<b class="text-${s[2]}-400">
+${s[1]}
+</b>
+
+</div>
+
+`).join("");
+
+}
+
+
+
+/* RESPONSE ENGINE */
+
+function renderResponse(hazard=false){
+
+const normal=[
+
+["Water Supply Valve","OPEN","emerald"],
+["UV Sterilization","ACTIVE","emerald"],
+["LoRa Transmission","LIVE","blue"],
+["Cloud Backup","SYNCED","blue"]
+
+];
+
+const danger=[
+
+["Water Supply Valve","LOCKED","red"],
+["Lime Dosing","ENGAGED","red"],
+["Iron Filtration","ACTIVE","amber"],
+["Community Alert","SENT","red"],
+["Emergency Siren","ACTIVE","red"]
+
+];
+
+const data=hazard?danger:normal;
+
+
+document.getElementById("responseEngine").innerHTML=
+
+data.map(x=>`
+
+<div class="flex justify-between
+p-3 rounded-xl bg-slate-950 border border-slate-800 text-xs">
+
+<span>${x[0]}</span>
+
+<b class="text-${x[2]}-400">
+${x[1]}
+</b>
+
+</div>
+
+`).join("");
+
+}
+
+
+
+/* TIMELINE */
+
+function addTimeline(text){
+
+const time=new Date().toLocaleTimeString("en-IN",{
+hour12:false
+});
+
+
+document.getElementById("timeline").innerHTML=
+
+`
+
+<div class="timeline-item">
+
+<b class="text-slate-200">${time}</b>
+
+<div class="mt-1">
+${text}
+</div>
+
+</div>
+
+`
+
++
+
+document.getElementById("timeline").innerHTML;
+
+}
+
+
+
+/* SAFE MODE */
+
+function resetSystem(){
+
+document.getElementById("ph").textContent="7.2";
+document.getElementById("turbidity").textContent="1.2";
+document.getElementById("tds").textContent="210";
+document.getElementById("iron").textContent="0.11";
+
+document.getElementById("risk").textContent="12%";
+document.getElementById("risk").className=
+"text-2xl font-black text-emerald-400 mt-2";
+
+document.getElementById("wqi").textContent="92";
+
+document.getElementById("verdictTitle").textContent=
+"SAFE FOR SUPPLY";
+
+document.getElementById("verdictTitle").className=
+"text-2xl md:text-3xl font-black text-emerald-400 mt-1";
+
+document.getElementById("verdictDesc").innerHTML=
+`All parameters within operational limits.
+AI contamination probability:
+<b class="text-emerald-400">12% LOW</b>`;
+
+document.getElementById("flowStatus").textContent=
+"NORMAL FLOW";
+
+document.getElementById("aiExplain").innerHTML=`
+
+<div class="p-3 rounded-xl bg-emerald-500/5
+border border-emerald-500/20">
+
+<b class="text-emerald-400 text-xs">
+LOW RISK
+</b>
+
+<div class="text-[10px] text-slate-400 mt-2">
+Stable pH and low heavy-metal probability.
+No contamination pattern match detected.
+</div>
+
+</div>
+
+`;
+
+renderResponse(false);
+
+addTimeline("System returned to normal monitoring mode.");
+
+}
+
+
+
+/* JUDGE DEMO */
+
+function runDemo(){
+
+addTimeline(
+"AI anomaly detection triggered."
+);
+
+
+setTimeout(()=>{
+
+document.getElementById("ph").textContent="5.8";
+
+document.getElementById("iron").textContent="1.4";
+
+document.getElementById("risk").textContent="58%";
+
+document.getElementById("risk").className=
+"text-2xl font-black text-amber-400 mt-2";
+
+
+document.getElementById("verdictTitle").textContent=
+"EARLY WARNING DETECTED";
+
+
+document.getElementById("verdictTitle").className=
+"text-2xl md:text-3xl font-black text-amber-400 mt-1";
+
+
+document.getElementById("aiExplain").innerHTML=`
+
+<div class="p-3 rounded-xl
+bg-amber-500/10 border border-amber-500/30">
+
+<b class="text-amber-400 text-xs">
+WHY AI RISK INCREASED
+</b>
+
+<ul class="text-[10px] text-slate-300 mt-2 space-y-1">
+
+<li>• pH falling faster than historical baseline</li>
+
+<li>• Iron concentration increasing</li>
+
+<li>• Pattern similarity with mining contamination</li>
+
+<li>• Predicted risk increase within 6 hours</li>
+
+</ul>
+
+</div>
+
+`;
+
+addTimeline(
+"Explainable AI identified abnormal acidic trend."
+);
+
+},1200);
+
+
+
+setTimeout(()=>{
+
+document.getElementById("ph").textContent="3.8";
+document.getElementById("turbidity").textContent="32";
+document.getElementById("tds").textContent="920";
+document.getElementById("iron").textContent="4.2";
+document.getElementById("risk").textContent="94%";
+document.getElementById("wqi").textContent="18";
+
+document.getElementById("risk").className=
+"text-2xl font-black text-red-400 mt-2";
+
+
+document.getElementById("verdictTitle").textContent=
+"CRITICAL — SUPPLY LOCKED";
+
+
+document.getElementById("verdictTitle").className=
+"text-2xl md:text-3xl font-black text-red-400 mt-1";
+
+
+document.getElementById("verdictDesc").innerHTML=
+`Acid Mine Drainage pattern detected.
+<b class="text-red-400">
+Emergency response activated automatically.
+</b>`;
+
+
+document.getElementById("flowStatus").textContent=
+"FLOW ISOLATED";
+
+
+renderResponse(true);
+
+
+chart.data.datasets[0].data=[
+7.1,7.0,6.9,6.2,3.8,3.5
+];
+
+chart.data.datasets[1].data=[
+.10,.12,.15,.8,4.2,4.8
+];
+
+chart.update();
+
+
+addTimeline(
+"CRITICAL contamination confirmed. Supply automatically isolated."
+);
+
+
+document.getElementById("emergency")
+.classList.remove("hidden");
+
+
+if("speechSynthesis" in window){
+
+let msg=new SpeechSynthesisUtterance(
+"Khatra. Pani peene yogya nahi hai. Kripya is paani ka upyog na karein."
+);
+
+msg.lang="hi-IN";
+
+speechSynthesis.speak(msg);
+
+}
+
+
+},3000);
+
+}
+
+
+
+/* CLOSE EMERGENCY */
+
+function closeEmergency(){
+
+document.getElementById("emergency")
+.classList.add("hidden");
+
+addTimeline(
+"Community GSM and voice alerts delivered."
+);
+
+}
+
+
+/* INIT */
+
+renderSensorHealth();
+renderResponse(false);
+
+addTimeline(
+"AI Edge Engine initialized successfully."
+);
+
+addTimeline(
+"All sensor nodes reporting healthy status."
+);
+
+</script>
+
+</body>
+</html>

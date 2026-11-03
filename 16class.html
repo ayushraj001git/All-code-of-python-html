@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Forms</title>
+</head> 
+<body>
+    <form method="get" action="register.jsp">
+        <label for="">Username:</label>
+        <br>
+        <input type="text" name="username" id="name" value="Krraple" required>
+        <br>
+        <label>Email:</label>
+        <br>
+        <input type="email" name="email" id="email" required>
+        <br>
+        <label for="">Password:</label>
+        <br>
+        <input type="password" name="password" id="pass">
+        <br>
+        <label for="dt">Date</label>
+        <br>
+        <input type="date" name="date" id="date">
+        <br>
+        <label>Contact:</label>
+        <div id="labelC">label</div>
+        <br>
+        <input type="number" name="contact" id="">
+        <br>
+        <input type="checkbox" name="check" id="">           
+        <label for="">Bhilai</label>
+        <br>
+        <input type="checkbox" name="check" id="">
+        <label for="">Bilaspur</label>
+        <br>
+        <input type="checkbox" name="check" id="">
+        <label for="">Raipur</label>
+        <br>
+        <input type="radio" name="fruit">
+        <label for="">Mango</label>
+        <br>
+        <input type="radio" name="fruit">
+        <!--IF THE NAME OF ANY TAGS ARE SAME THEN ONLY ONE OF THE INOUT VALUES CAN BE SELECTED-->
+        <label for="">Banana</label>
+        <br>
+        <input type="file">
+        <label for="">Upload feet</label>
+        <br>
+        <select name="state" id="">
+            <option name="state" id="stt">Select state</option>
+            <option value="CG">Chhattisgarh</option>
+            <option value="BR">Bihar</option>
+            <option value="GJ">Gujarat</option>
+            <option value="JH">Jharkhand</option>
+            <option value="MH">Maharashtra</option>
+        </select>         
+        <br>
+        <br>
+        <input type="submit" value="Submit">
+        <input type="reset" value="Reset">
+        <br>
+    </form>
+</body>

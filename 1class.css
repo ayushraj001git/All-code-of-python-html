@@ -1,0 +1,26 @@
+div {
+  width: 250px;
+  height: 100px;
+  margin: 20px;
+  padding: 15px;
+}
+
+/* 1. Using individual properties */
+.box1 {
+  border-width: 4px;
+  border-style: solid;
+  border-color: blue;
+}
+
+/* 2. Using the shorthand property (width style color) */
+.box2 {
+  border: 3px dashed red;
+}
+
+/* 3. Styling specific sides individually */
+.box3 {
+  border-top: 5px solid green;
+  border-right: 3px dotted orange;
+  border-bottom: 5px double purple;
+  border-left: 2px solid black;
+}

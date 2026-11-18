@@ -1,6 +1,6 @@
 # Hospital Appointment Scheduler
 # Name: Ayush Raj
-# ERP: 01929
+# ERP: RU-26-01929
 # Course: B.Tech CSE - First Semester
 
 from datetime import datetime
@@ -8,7 +8,6 @@ from datetime import datetime
 
 # The program stores all appointments in this dictionary.
 # Appointment ID is the key and the appointment details are the value.
-
 appt_list = {}
 next_id = 101
 

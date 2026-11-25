@@ -1,19 +1,18 @@
-# Hospital Appointment Scheduler
+# Hospital Appointment Scheduler (simple version)
 # Name: Ayush Raj
-# ERP: RU-26-01929
 # Course: B.Tech CSE - First Semester
 
 from datetime import datetime
 
-
-# The program stores all appointments in this dictionary.
-# Appointment ID is the key and the appointment details are the value.
+# All appointments are stored in this dictionary.
+# Key = appointment ID (like "A101"), Value = details of that appointment.
 appt_list = {}
+
+# The next appointment number. The first ID will be A101.
 next_id = 101
 
+# The two doctors in the clinic.
 DOCTORS = ["Dr. Mehta", "Dr. Rao"]
-START_TIME = "09:00"
-END_TIME = "16:30"
 
 
 def show_menu():
@@ -25,63 +24,61 @@ def show_menu():
     print("5. Exit")
 
 
-def get_appointment_datetime(date_text, time_text):
-    """Check the date, time and 30-minute slot, then return a datetime value."""
+def check_date_and_time(date_text, time_text):
+    # This function checks the date and the time.
+    # It gives back True if both are correct, otherwise False.
 
-    # Check date format and also check whether the date really exists.
+    # Step 1: check the date (DD-MM-YYYY). A wrong date like 31-11-2026
+    # makes strptime fail, so the program goes to "except".
     try:
-        date_value = datetime.strptime(date_text, "%d-%m-%Y")
-        if date_value.strftime("%d-%m-%Y") != date_text:
+        datetime.strptime(date_text, "%d-%m-%Y")
+        if len(date_text) != 10:      # forces the form 05-01-2026
             raise ValueError
     except ValueError:
         print("Invalid date. Please enter the date as DD-MM-YYYY.")
-        return None
+        return False
 
-    # Check time format.
+    # Step 2: check the time (HH:MM).
     try:
         time_value = datetime.strptime(time_text, "%H:%M")
-        if time_value.strftime("%H:%M") != time_text:
+        if len(time_text) != 5:       # forces the form 09:00
             raise ValueError
     except ValueError:
         print("Invalid time. Please enter the time as HH:MM.")
-        return None
+        return False
 
-    # Appointment slots are from 09:00 to 16:30, with a gap of 30 minutes.
-    start_value = datetime.strptime(START_TIME, "%H:%M")
-    end_value = datetime.strptime(END_TIME, "%H:%M")
-
-    if time_value < start_value or time_value > end_value:
+    # Step 3: time must be from 09:00 to 16:30.
+    if time_value.hour < 9 or time_value.hour > 16:
         print("Invalid slot. Appointments are available from 09:00 to 16:30.")
-        return None
+        return False
+    if time_value.hour == 16 and time_value.minute > 30:
+        print("Invalid slot. Appointments are available from 09:00 to 16:30.")
+        return False
 
-    if time_value.minute not in (0, 30):
+    # Step 4: slots are 30 minutes, so minutes must be 00 or 30.
+    if time_value.minute != 0 and time_value.minute != 30:
         print("Invalid slot. Please choose a 30-minute slot.")
-        return None
+        return False
 
-    return datetime.strptime(date_text + " " + time_text, "%d-%m-%Y %H:%M")
+    return True
 
 
-def find_conflict(doctor, new_datetime, ignore_id=None):
-    """Return True when the same doctor already has this date and time."""
-
+def find_conflict(doctor, date_text, time_text, ignore_id=""):
+    # This function checks if the same doctor already has this date and time.
+    # It gives back True if there is a clash, otherwise False.
     for appt_id in appt_list:
-        if appt_id == ignore_id:
+        if appt_id == ignore_id:      # skip the appointment we are changing
             continue
 
-        appointment = appt_list[appt_id]
-        old_datetime = datetime.strptime(
-            appointment["date"] + " " + appointment["time"],
-            "%d-%m-%Y %H:%M"
-        )
-
-        if appointment["doctor"] == doctor and old_datetime == new_datetime:
+        a = appt_list[appt_id]
+        if a["doctor"] == doctor and a["date"] == date_text and a["time"] == time_text:
             return True
 
     return False
 
 
 def book_appointment():
-    global next_id
+    global next_id        # we change next_id, which is outside this function
 
     print("\n--- Book Appointment ---")
     patient = input("Patient name: ").strip()
@@ -98,17 +95,15 @@ def book_appointment():
     date_text = input("Date (DD-MM-YYYY): ").strip()
     time_text = input("Time (HH:MM): ").strip()
 
-    new_datetime = get_appointment_datetime(date_text, time_text)
-    if new_datetime is None:
+    if check_date_and_time(date_text, time_text) == False:
         return
 
-    if find_conflict(doctor, new_datetime):
-        print(
-            "Slot unavailable: " + doctor + " already has an appointment on "
-            + date_text + " at " + time_text + "."
-        )
+    if find_conflict(doctor, date_text, time_text):
+        print("Slot unavailable: " + doctor + " already has an appointment on "
+              + date_text + " at " + time_text + ".")
         return
 
+    # Everything is correct, so save the appointment.
     appt_id = "A" + str(next_id)
     appt_list[appt_id] = {
         "patient": patient,
@@ -118,10 +113,8 @@ def book_appointment():
     }
     next_id = next_id + 1
 
-    print(
-        "Appointment booked. ID: " + appt_id + " | " + patient + " | "
-        + doctor + " | " + date_text + " " + time_text
-    )
+    print("Appointment booked. ID: " + appt_id + " | " + patient + " | "
+          + doctor + " | " + date_text + " " + time_text)
 
 
 def view_appointments():
@@ -131,12 +124,9 @@ def view_appointments():
         print("No appointments found.")
     else:
         for appt_id in appt_list:
-            appointment = appt_list[appt_id]
-            print(
-                appt_id + " | " + appointment["patient"] + " | "
-                + appointment["doctor"] + " | " + appointment["date"]
-                + " | " + appointment["time"]
-            )
+            a = appt_list[appt_id]
+            print(appt_id + " | " + a["patient"] + " | " + a["doctor"]
+                  + " | " + a["date"] + " | " + a["time"])
 
     print("Total appointments: " + str(len(appt_list)))
 
@@ -152,27 +142,21 @@ def reschedule_appointment():
     date_text = input("New date (DD-MM-YYYY): ").strip()
     time_text = input("New time (HH:MM): ").strip()
 
-    new_datetime = get_appointment_datetime(date_text, time_text)
-    if new_datetime is None:
+    if check_date_and_time(date_text, time_text) == False:
         return
 
     doctor = appt_list[appt_id]["doctor"]
 
-    # ignore_id prevents the appointment from conflicting with itself.
-    if find_conflict(doctor, new_datetime, appt_id):
-        print(
-            "Slot unavailable: " + doctor + " already has an appointment on "
-            + date_text + " at " + time_text + "."
-        )
+    # ignore_id = appt_id, so the appointment does not clash with itself.
+    if find_conflict(doctor, date_text, time_text, appt_id):
+        print("Slot unavailable: " + doctor + " already has an appointment on "
+              + date_text + " at " + time_text + ".")
         return
 
     appt_list[appt_id]["date"] = date_text
     appt_list[appt_id]["time"] = time_text
-
-    print(
-        "Appointment " + appt_id + " rescheduled to " + date_text + " "
-        + time_text + "."
-    )
+    print("Appointment " + appt_id + " rescheduled to " + date_text + " "
+          + time_text + ".")
 
 
 def cancel_appointment():
@@ -190,7 +174,7 @@ def main():
     print("Hospital Appointment Scheduler")
     print("Available doctors: Dr. Mehta, Dr. Rao")
 
-    while True:
+    while True:                       # keeps showing the menu again and again
         show_menu()
         choice = input("Enter your choice: ").strip()
 
@@ -204,10 +188,9 @@ def main():
             cancel_appointment()
         elif choice == "5":
             print("Thank you. Program closed.")
-            break
+            break                     # stops the while loop
         else:
             print("Invalid choice. Please enter a number from 1 to 5.")
 
 
-if __name__ == "__main__":
-    main()
+main()
